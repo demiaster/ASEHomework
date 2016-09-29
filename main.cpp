@@ -1,8 +1,7 @@
 #include <iostream>
-using namespace std;
+#include <cstdlib>
 int main()
 {
-    using namespace std;
-    cout<<"Hello World"<<endl;
-    return 0;
+    std::cout<<"Hello World\n";
+    return EXIT_SUCCESS;
 }
