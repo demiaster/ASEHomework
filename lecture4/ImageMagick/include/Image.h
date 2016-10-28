@@ -13,7 +13,7 @@ class Image
             m_width(_width),
             m_height(_height),
             m_pixelDepth(_depth),
-            m_data(new unsigned char[m_width*m_height*m_pixelDepth]) {;}
+            m_data(new unsigned char[_width * _height * _depth]) {;}
 
         void setPixel(std::size_t _x,
                       std::size_t _y,
@@ -31,7 +31,7 @@ class Image
 
 
     private:
-        std::unique_ptr<unsigned char> m_data;
+        std::unique_ptr<unsigned char[]> m_data;
         std::size_t m_height;
         std::size_t m_width;
         std::size_t m_pixelDepth;
