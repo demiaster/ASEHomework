@@ -36,9 +36,12 @@ class Image
         std::size_t m_width;
         std::size_t m_pixelDepth;
 
-        int getIndex (std::size_t _x,
+        inline int getIndex (std::size_t _x,
                       std::size_t _y,
-                      std::size_t _z) const;
+                      std::size_t _z) const
+        {
+            return (_x + m_width * _y) * m_pixelDepth + _z;
+        }
 
 
 };
