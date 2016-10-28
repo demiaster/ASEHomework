@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <string>
 #include <memory>
+#include <Magick++.h>
 
 class Image
 {
@@ -58,10 +59,10 @@ class Image
 
     private:
 
-        std::unique_ptr<unsigned char[]> m_data;
-        std::size_t m_height;
         std::size_t m_width;
+        std::size_t m_height;
         std::size_t m_pixelDepth;
+        std::unique_ptr<unsigned char[]> m_data;
 
         inline int getIndex (std::size_t _x,
                       std::size_t _y,

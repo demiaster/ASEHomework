@@ -1,4 +1,6 @@
 #include "Image.h"
+#include <exception>
+#include <iostream>
 
 void Image::setPixel(std::size_t _x,
               std::size_t _y,
@@ -20,15 +22,30 @@ void Image::setPixel(std::size_t _x,
     return;
 }
 
-bool Image::save(std::string _fname) {}
+bool Image::save(std::string _fname)
+{
+    try
+    {
+        Magick::Image output(m_width,m_height,"RGB",Magick::CharPixel,m_data.get());
+        output.depth(32);
+        output.write(_fname);
+    }
+    catch (std::exception& error_)
+    {
+        std::cout << "Caught exception: " << error_.what() << '\n';
+        return false;
+    }
+
+    return true;
+}
 
 void Image::clearScreen(unsigned char _r,
                  unsigned char _g,
                  unsigned char _b)
 {
-    for( int i = 0; i < m_width; ++i)
+    for (unsigned int i = 0; i < m_width; ++i)
     {
-        for( int j = 0; j < m_height; ++j)
+        for (unsigned int j = 0; j < m_height; ++j)
         {
             setPixel(i, j, _r, _g, _b);
         }
@@ -36,4 +53,3 @@ void Image::clearScreen(unsigned char _r,
 
     return;
 }
-
