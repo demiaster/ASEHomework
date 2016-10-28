@@ -53,7 +53,7 @@ class Image
 
         /// @brief destructor
 
-        ~Image();
+        inline ~Image() {;}
 
     private:
 
