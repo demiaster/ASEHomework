@@ -55,8 +55,6 @@ class Image
 
         ~Image();
 
-
-
     private:
 
         std::size_t m_width;
