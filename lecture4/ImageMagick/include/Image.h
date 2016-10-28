@@ -26,6 +26,8 @@ class Image
                          unsigned char _g,
                          unsigned char _b);
 
+        ~Image();
+
 
 
     private:
