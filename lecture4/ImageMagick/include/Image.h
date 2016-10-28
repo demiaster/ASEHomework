@@ -36,6 +36,10 @@ class Image
         std::size_t m_width;
         std::size_t m_pixelDepth;
 
+        int getIndex (std::size_t _x,
+                      std::size_t _y,
+                      std::size_t _z) const;
+
 
 };
 
