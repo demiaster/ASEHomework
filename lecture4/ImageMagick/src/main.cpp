@@ -7,11 +7,19 @@
 #include <algorithm>
 #include <sstream>
 
+//line things
+#include <cmath>
+#include <cassert>
+
 constexpr int WIDTH = 1920;
 constexpr int HEIGHT = 1080;
 constexpr int DEPTH = 3;
 
 void rnd(int);
+
+void line(const unsigned int _startX, const unsigned int _startY,
+           const unsigned int _endX, const unsigned int _endY,
+           const unsigned char _r, const unsigned char _g, const unsigned char _b);
 
 int main()
 {
@@ -20,9 +28,11 @@ int main()
   image.clearScreen(67, 189, 242);
   image.save("picture.png");
 
-  for (int i = 0; i < 50; ++i)
-    rnd(i);
+  //for (int i = 0; i < 50; ++i)
+  //    rnd(i);
   // Create a video with: ffmpeg -i picture-$DISTRIBUTION-%d.png output.gif
+
+  line(100, 100, 800, 800, 255, 0, 0);
 
   return EXIT_SUCCESS;
 }
@@ -43,22 +53,17 @@ int main()
 //#define NORMALIZE (distribution(generator) - distribution.min()) / STEP
 
 
-void rnd(int output)
+void rnd(const int output)
 {
     static std::knuth_b generator;
     DISTRIBUTION;
     Image image(WIDTH, HEIGHT, DEPTH);
-
-    std::cout << NORMALIZE << "\n";
-    std::cout << NORMALIZE << "\n";
-    std::cout << NORMALIZE << "\n";
-    std::cout << NORMALIZE << "\n";
-    std::cout << NORMALIZE << "\n";
-    std::cout << NORMALIZE << "\n";
-
     for (unsigned int i = 0; i < WIDTH; ++i)
     {
-        for (unsigned int j = 0; j < HEIGHT; ++j) {
+        for (unsigned int j = 0; j < HEIGHT; ++j)
+        {
+            //just to get a more blue-ish result :)
+            //maybe it gets things much slower
             std::vector<unsigned char> vec;
             vec.push_back(NORMALIZE);
             vec.push_back(NORMALIZE);
@@ -80,9 +85,52 @@ void rnd(int output)
  * sprintf to write the filename out) you can use fcheck or
  * animate to show the frames
  */
-void lines()
+/* Breseham's line algorithm
+ *  function line(x0, y0, x1, y1)
+ *    real deltax := x1 - x0
+ *    real deltay := y1 - y0
+ *    real error := -1.0
+ *    real deltaerr := abs(deltay / deltax)    // Assume deltax != 0 (line is not vertical),
+ *          // note that this division needs to be done in a way that preserves the fractional part
+ *    int y := y0
+ *    for x from x0 to x1-1
+ *        plot(x,y)
+ *        error := error + deltaerr
+ *        if error ≥ 0.0 then
+ *            y := y + 1
+ *            error := error - 1.0
+ */
+void line(const unsigned int _startX, const unsigned int _startY,
+           const unsigned int _endX, const unsigned int _endY,
+           const unsigned char _r, const unsigned char _g, const unsigned char _b)
 {
+    Image image(WIDTH, HEIGHT);
 
+    //check input validity
+    assert(0 < _startX && _startX < WIDTH);
+    assert(0 < _endX && _endX < WIDTH);
+    assert(0 < _startY && _startY < HEIGHT);
+    assert(0 < _endY && _endY < HEIGHT);
+
+    int deltaX = _endX - _startX;
+    int deltaY = _endY - _startY;
+    float error = -1.0;
+    assert(deltaX != 0);
+    float deltaErr = std::abs(deltaY / deltaX);
+    int y = _startY;
+    for (unsigned int x = _startX; x < _endX; ++x)
+    {
+        image.setPixel(x, y, _r, _g, _b);
+        error += deltaErr;
+        if (error >= 0.0)
+        {
+            ++y;
+            error -= 1.0;
+         }
+    }
+
+    image.save("picture-line.png");
+    return;
 }
 
 /* Investigate the use of fmod to create repeating patterns
