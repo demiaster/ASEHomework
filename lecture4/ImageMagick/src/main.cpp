@@ -9,6 +9,7 @@
 
 //line things
 #include <cmath>
+#define NDEBUG
 #include <cassert>
 
 constexpr int WIDTH = 1920;
@@ -17,9 +18,14 @@ constexpr int DEPTH = 3;
 
 void rnd(int);
 
-void line(const unsigned int _startX, const unsigned int _startY,
-           const unsigned int _endX, const unsigned int _endY,
+void line(Image &image, const int _startX, const int _startY,
+           const int _endX, const int _endY,
            const unsigned char _r, const unsigned char _g, const unsigned char _b);
+
+void bhm_line(const Image& image, int x1,int y1,int x2,int y2,
+              const unsigned char _r, const unsigned char _g, const unsigned char _b);
+
+void rainbowWheel();
 
 int main()
 {
@@ -32,7 +38,9 @@ int main()
   //    rnd(i);
   // Create a video with: ffmpeg -i picture-$DISTRIBUTION-%d.png output.gif
 
-  line(100, 100, 800, 800, 255, 0, 0);
+  //line(100, 100, 800, 800, 255, 0, 0);
+
+  rainbowWheel();
 
   return EXIT_SUCCESS;
 }
@@ -80,11 +88,6 @@ void rnd(const int output)
     image.save(ss.str().c_str());
 }
 
-/* write a program to animate a simple line crossing the screen,
- * by outputing multiple frames to disc (hint use a loop and
- * sprintf to write the filename out) you can use fcheck or
- * animate to show the frames
- */
 /* Breseham's line algorithm
  *  function line(x0, y0, x1, y1)
  *    real deltax := x1 - x0
@@ -100,25 +103,28 @@ void rnd(const int output)
  *            y := y + 1
  *            error := error - 1.0
  */
-void line(const unsigned int _startX, const unsigned int _startY,
-           const unsigned int _endX, const unsigned int _endY,
+
+//line apparently does not work properly
+void line(Image& image,
+          const int _startX, const int _startY,
+           const int _endX, const int _endY,
            const unsigned char _r, const unsigned char _g, const unsigned char _b)
 {
-    Image image(WIDTH, HEIGHT);
-
     //check input validity
     assert(0 < _startX && _startX < WIDTH);
     assert(0 < _endX && _endX < WIDTH);
     assert(0 < _startY && _startY < HEIGHT);
     assert(0 < _endY && _endY < HEIGHT);
 
-    int deltaX = _endX - _startX;
-    int deltaY = _endY - _startY;
+    float deltaX = _endX - _startX;
+    float deltaY = _endY - _startY;
     float error = -1.0;
+
+    //this algorithm only works for deltaX not zero
     assert(deltaX != 0);
-    float deltaErr = std::abs(deltaY / deltaX);
+    float deltaErr = std::fabs(deltaY / deltaX);
     int y = _startY;
-    for (unsigned int x = _startX; x < _endX; ++x)
+    for (int x = _startX; x < _endX; ++x)
     {
         image.setPixel(x, y, _r, _g, _b);
         error += deltaErr;
@@ -129,9 +135,159 @@ void line(const unsigned int _startX, const unsigned int _startY,
          }
     }
 
-    image.save("picture-line.png");
     return;
 }
+
+//same algorithm from
+//http://www.etechplanet.com/codesnippets/computer-graphics-draw-a-line-using-bresenham-algorithm.aspx
+void bhm_line(Image& image,
+              int x1, int y1, int x2, int y2,
+              const unsigned char _r,
+              const unsigned char _g,
+              const unsigned char _b)
+{
+     int x, y;
+     int dx, dy;
+     int dx1, dy1;
+     int px, py;
+     int xe, ye;
+
+     dx = x2 - x1;
+     dy = y2 - y1;
+     dx1 = fabs(dx);
+     dy1 = fabs(dy);
+     px = 2 * dy1 - dx1;
+     py = 2 * dx1 - dy1;
+
+     if (dy1 <= dx1)
+     {
+
+         if (dx >= 0)
+          {
+               x = x1;
+               y = y1;
+               xe = x2;
+          }
+          else
+          {
+               x = x2;
+               y = y2;
+               xe = x1;
+          }
+          image.setPixel(x, y, _r, _g, _b);
+
+          for (int i=0; x < xe; ++i)
+          {
+               ++x;
+               if (px < 0)
+               {
+                    px += 2 * dy1;
+               }
+               else
+               {
+                    if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
+                    {
+                        ++y;
+                    }
+                    else
+                    {
+                        --y;
+                    }
+                    px += 2 * (dy1 - dx1);
+               }
+               image.setPixel(x, y, _r, _g, _b);
+          }
+     }
+     else
+     {
+          if(dy >= 0)
+          {
+               x = x1;
+               y = y1;
+               ye = y2;
+          }
+          else
+          {
+               x = x2;
+               y = y2;
+               ye = y1;
+          }
+          image.setPixel(x, y, _r, _g, _b);
+
+          for (int i = 0; y < ye; ++i)
+          {
+               ++y;
+               if(py <= 0)
+               {
+                    py += 2 * dx1;
+               }
+               else
+               {
+                    if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
+                    {
+                        ++x;
+                    }
+                    else
+                    {
+                        --x;
+                    }
+                    py += 2 * (dx1 - dy1);
+               }
+               image.setPixel(x, y, _r, _g, _b);
+          }
+     }
+}
+
+typedef struct Point_s {
+    unsigned int x;
+    unsigned int y;
+} Point;
+
+#define POW(X) ((X)*(X))
+
+class LineYielder {
+public:
+    inline LineYielder(const Point& pinit, const Point& pend) :
+        m_center(pinit),
+        m_radius(std::sqrt(POW(pend.x - pinit.x) + POW(pend.y - pinit.y))),
+        m_angle(std::atan2(pend.y - pinit.y, pend.x - pinit.x)) {
+        std::cout << "angle: " << m_angle << "\n";
+        std::cout << "radius: " << m_radius << "\n";
+    }
+
+    inline Point nextLine(const float delta) {
+        m_angle = m_angle + delta;
+        int x = m_radius * std::cos(m_angle) + m_center.x;
+        int y = m_radius * std::sin(m_angle) + m_center.y;
+        return Point{x, y};
+    }
+
+private:
+    const Point& m_center;
+    float m_radius;
+    float m_angle;
+};
+
+void rainbowWheel()
+{
+    Image image(WIDTH, HEIGHT);
+
+    //cleaning background
+    image.clearScreen(0, 0, 0);
+
+    Point center = Point{960,540};
+
+    LineYielder yielder(center, Point{1060, 540});
+
+    for (int i = 0; i < 100000; ++i) {
+        Point next = yielder.nextLine(0.1);
+        bhm_line(image, center.x, center.y, next.x, next.y, 255, 0, 0);
+    }
+    image.save("picture-redlines.png");
+}
+
+/* returns the points on a circle */
+
 
 /* Investigate the use of fmod to create repeating patterns
  *  such as a sphere
