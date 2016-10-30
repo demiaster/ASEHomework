@@ -29,25 +29,22 @@ void rainbowWheel();
 
 int main()
 {
-  std::cout<<"Need to write an Image Class\n";
-  Image image(WIDTH, HEIGHT, DEPTH);
-  image.clearScreen(67, 189, 242);
-  image.save("picture.png");
+    std::cout<<"Need to write an Image Class\n";
+    Image image(WIDTH, HEIGHT, DEPTH);
+    image.clearScreen(67, 189, 242);
+    image.save("picture.png");
 
-  //for (int i = 0; i < 50; ++i)
-  //    rnd(i);
-  // Create a video with: ffmpeg -i picture-$DISTRIBUTION-%d.png output.gif
+    //for (int i = 0; i < 50; ++i)
+    //    rnd(i);
+    // Create a video with: ffmpeg -i picture-$DISTRIBUTION-%d.png output.gif
 
-  //line(100, 100, 800, 800, 255, 0, 0);
+    //line(100, 100, 800, 800, 255, 0, 0);
 
-  rainbowWheel();
+    rainbowWheel();
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
-/* Investigate the C++ 11 random functions to create
- * random images using the different distributions
- */
 #define NORMAL 1
 #ifdef NORMAL
 #define DISTRIBUTION std::normal_distribution<double> distribution(128,128)
@@ -56,10 +53,7 @@ int main()
 #elif GAMMA
 #define DISTRIBUTION std::gamma_distribution<char> distribution(2.0,2.0)
 #define DSTRING "gamma"
-#endif
-//#define STEP ((distribution.max() - distribution.min()) / 255)
-//#define NORMALIZE (distribution(generator) - distribution.min()) / STEP
-
+#endif //GAMMA
 
 void rnd(const int output)
 {
@@ -93,8 +87,12 @@ void rnd(const int output)
  *    real deltax := x1 - x0
  *    real deltay := y1 - y0
  *    real error := -1.0
- *    real deltaerr := abs(deltay / deltax)    // Assume deltax != 0 (line is not vertical),
- *          // note that this division needs to be done in a way that preserves the fractional part
+ *    real deltaerr := abs(deltay / deltax)
+ *
+ *    // Assume deltax != 0 (line is not vertical),
+ *    // note that this division needs to be done
+ *    //in a way that preserves the fractional part
+ *
  *    int y := y0
  *    for x from x0 to x1-1
  *        plot(x,y)
@@ -245,18 +243,17 @@ typedef struct Point_s {
 
 #define POW(X) ((X)*(X))
 
-class LineYielder {
+class LineYielder
+{
 public:
-    inline LineYielder(const Point& pinit, const Point& pend) :
-        m_center(pinit),
-        m_radius(std::sqrt(POW(pend.x - pinit.x) + POW(pend.y - pinit.y))),
-        m_angle(std::atan2(pend.y - pinit.y, pend.x - pinit.x)) {
-        std::cout << "angle: " << m_angle << "\n";
-        std::cout << "radius: " << m_radius << "\n";
-    }
+    inline LineYielder(const Point& _pinit, const Point& _pend) :
+        m_center(_pinit),
+        m_radius(std::sqrt(POW(_pend.x - _pinit.x) + POW(_pend.y - _pinit.y))),
+        m_angle(std::atan2(_pend.y - _pinit.y, _pend.x - _pinit.x)) {;}
 
-    inline Point nextLine(const float delta) {
-        m_angle = m_angle + delta;
+    inline Point nextLine(const float _delta)
+    {
+        m_angle = m_angle + _delta;
         int x = m_radius * std::cos(m_angle) + m_center.x;
         int y = m_radius * std::sin(m_angle) + m_center.y;
         return Point{x, y};
@@ -275,7 +272,7 @@ void rainbowWheel()
     //cleaning background
     image.clearScreen(0, 0, 0);
 
-    Point center = Point{960,540};
+    Point center = Point{960, 540};
 
     LineYielder yielder(center, Point{1060, 540});
 
@@ -285,9 +282,6 @@ void rainbowWheel()
     }
     image.save("picture-redlines.png");
 }
-
-/* returns the points on a circle */
-
 
 /* Investigate the use of fmod to create repeating patterns
  *  such as a sphere
