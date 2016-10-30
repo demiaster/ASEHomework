@@ -1,4 +1,5 @@
 #include "Image.h"
+#include "lineyielder.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -235,36 +236,6 @@ void bhm_line(Image& image,
           }
      }
 }
-
-typedef struct Point_s
-{
-    unsigned int x;
-    unsigned int y;
-} Point;
-
-#define POW(X) ((X)*(X))
-
-class LineYielder
-{
-public:
-    inline LineYielder(const Point& _pinit, const Point& _pend) :
-        m_center(_pinit),
-        m_radius(std::sqrt(POW(_pend.x - _pinit.x) + POW(_pend.y - _pinit.y))),
-        m_angle(std::atan2(_pend.y - _pinit.y, _pend.x - _pinit.x)) {;}
-
-    inline Point nextLine(const float _delta)
-    {
-        m_angle = m_angle + _delta;
-        int x = m_radius * std::cos(m_angle) + m_center.x;
-        int y = m_radius * std::sin(m_angle) + m_center.y;
-        return Point{x, y};
-    }
-
-private:
-    const Point& m_center;
-    float m_radius;
-    float m_angle;
-};
 
 void rainbowWheel()
 {
