@@ -236,7 +236,8 @@ void bhm_line(Image& image,
      }
 }
 
-typedef struct Point_s {
+typedef struct Point_s
+{
     unsigned int x;
     unsigned int y;
 } Point;
@@ -276,7 +277,8 @@ void rainbowWheel()
 
     LineYielder yielder(center, Point{1060, 540});
 
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 100000; ++i)
+    {
         Point next = yielder.nextLine(0.1);
         bhm_line(image, center.x, center.y, next.x, next.y, 255, 0, 0);
     }
