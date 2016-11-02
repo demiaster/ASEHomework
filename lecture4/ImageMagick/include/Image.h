@@ -72,4 +72,4 @@ class Image
 
 };
 
-#endif
+#endif //IMAGE_H

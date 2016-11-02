@@ -3,7 +3,7 @@
 #include "point.h"
 
 #define POW(X) ((X)*(X))
-//
+
 class LineYielder
 {
 public:
@@ -20,11 +20,13 @@ public:
         return Point{x, y};
     }
 
+    inline ~LineYielder() {;}
+
+
 private:
     const Point& m_center;
     float m_radius;
     float m_angle;
 };
-//cose
 
 #endif // LINEYIELDER_H

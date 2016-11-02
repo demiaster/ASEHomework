@@ -9,13 +9,13 @@
 #include <sstream>
 
 //line things
-#include <cmath>
 #define NDEBUG
 #include <cassert>
 
 constexpr int WIDTH = 1920;
 constexpr int HEIGHT = 1080;
 constexpr int DEPTH = 3;
+constexpr float PI = 3.1415926535897;
 
 void rnd(int);
 
@@ -26,7 +26,9 @@ void line(Image &image, const int _startX, const int _startY,
 void bhm_line(const Image& image, int x1,int y1,int x2,int y2,
               const unsigned char _r, const unsigned char _g, const unsigned char _b);
 
-void rainbowWheel();
+void rainbowWheel(const int _line_Number,
+                  const int unsigned _x_center, const unsigned int _y_center,
+                  const int unsigned _x_end, const unsigned int _y_end);
 
 int main()
 {
@@ -41,7 +43,7 @@ int main()
 
     //line(100, 100, 800, 800, 255, 0, 0);
 
-    rainbowWheel();
+    rainbowWheel(10, WIDTH / 2, HEIGHT / 2, 1060, 540);
 
     return EXIT_SUCCESS;
 }
@@ -106,8 +108,10 @@ void rnd(const int output)
 //line apparently does not work properly
 void line(Image& image,
           const int _startX, const int _startY,
-           const int _endX, const int _endY,
-           const unsigned char _r, const unsigned char _g, const unsigned char _b)
+          const int _endX, const int _endY,
+          const unsigned char _r,
+          const unsigned char _g,
+          const unsigned char _b)
 {
     //check input validity
     assert(0 < _startX && _startX < WIDTH);
@@ -153,8 +157,8 @@ void bhm_line(Image& image,
 
      dx = x2 - x1;
      dy = y2 - y1;
-     dx1 = fabs(dx);
-     dy1 = fabs(dy);
+     dx1 = std::fabs(dx);
+     dy1 = std::fabs(dy);
      px = 2 * dy1 - dx1;
      py = 2 * dx1 - dy1;
 
@@ -175,7 +179,7 @@ void bhm_line(Image& image,
           }
           image.setPixel(x, y, _r, _g, _b);
 
-          for (int i=0; x < xe; ++i)
+          for (int i = 0; x < xe; ++i)
           {
                ++x;
                if (px < 0)
@@ -222,7 +226,10 @@ void bhm_line(Image& image,
                }
                else
                {
-                    if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
+                   //((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) ? x++ : x--;
+
+
+                   if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
                     {
                         ++x;
                     }
@@ -237,20 +244,26 @@ void bhm_line(Image& image,
      }
 }
 
-void rainbowWheel()
+void rainbowWheel(const int _line_Number,
+                  const int unsigned _x_center, const unsigned int _y_center,
+                  const int unsigned _x_end, const unsigned int _y_end)
 {
     Image image(WIDTH, HEIGHT);
 
     //cleaning background
     image.clearScreen(0, 0, 0);
 
-    Point center = Point{960, 540};
+    Point center = Point{_x_center, _y_center};
+    Point end_point = Point{_x_end, _y_end};
 
-    LineYielder yielder(center, Point{1060, 540});
+    float _deg_angle = 360 / _line_Number;
+    float _rad_angle = _deg_angle * PI / 180;
 
-    for (int i = 0; i < 100000; ++i)
+    LineYielder yielder(center, end_point);
+
+    for (int i = 0; i < _line_Number; ++i)
     {
-        Point next = yielder.nextLine(0.1);
+        Point next = yielder.nextLine(_rad_angle);
         bhm_line(image, center.x, center.y, next.x, next.y, 255, 0, 0);
     }
     image.save("picture-redlines.png");
