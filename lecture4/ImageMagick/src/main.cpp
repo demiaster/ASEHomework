@@ -19,11 +19,13 @@ constexpr float PI = 3.1415926535897;
 
 void rnd(int);
 
-void line(Image &image, const int _startX, const int _startY,
-           const int _endX, const int _endY,
-           const unsigned char _r, const unsigned char _g, const unsigned char _b);
+void line(Image &image,
+          const int _startX, const int _startY,
+          const int _endX, const int _endY,
+          const unsigned char _r, const unsigned char _g, const unsigned char _b);
 
-void bhm_line(const Image& image, int x1,int y1,int x2,int y2,
+void bhm_line(const Image& image,
+              int _x1, int _y1, int _x2, int _y2,
               const unsigned char _r, const unsigned char _g, const unsigned char _b);
 
 void rainbowWheel(const int _line_Number,
@@ -43,7 +45,7 @@ int main()
 
     //line(100, 100, 800, 800, 255, 0, 0);
 
-    rainbowWheel(10, WIDTH / 2, HEIGHT / 2, 1060, 540);
+    rainbowWheel(100, WIDTH / 2, HEIGHT / 2, 1360, 540);
 
     return EXIT_SUCCESS;
 }
@@ -86,9 +88,9 @@ void rnd(const int output)
 }
 
 /* Breseham's line algorithm
- *  function line(x0, y0, x1, y1)
- *    real deltax := x1 - x0
- *    real deltay := y1 - y0
+ *  function line(x0, y0, _x1, _y1)
+ *    real deltax := _x1 - x0
+ *    real deltay := _y1 - y0
  *    real error := -1.0
  *    real deltaerr := abs(deltay / deltax)
  *
@@ -97,7 +99,7 @@ void rnd(const int output)
  *    //in a way that preserves the fractional part
  *
  *    int y := y0
- *    for x from x0 to x1-1
+ *    for x from x0 to _x1-1
  *        plot(x,y)
  *        error := error + deltaerr
  *        if error ≥ 0.0 then
@@ -144,38 +146,37 @@ void line(Image& image,
 //same algorithm from
 //http://www.etechplanet.com/codesnippets/computer-graphics-draw-a-line-using-bresenham-algorithm.aspx
 void bhm_line(Image& image,
-              int x1, int y1, int x2, int y2,
+              int _x1, int _y1, int _x2, int _y2,
               const unsigned char _r,
               const unsigned char _g,
               const unsigned char _b)
 {
      int x, y;
      int dx, dy;
-     int dx1, dy1;
+     int d_x1, d_y1;
      int px, py;
      int xe, ye;
 
-     dx = x2 - x1;
-     dy = y2 - y1;
-     dx1 = std::fabs(dx);
-     dy1 = std::fabs(dy);
-     px = 2 * dy1 - dx1;
-     py = 2 * dx1 - dy1;
+     dx = _x2 - _x1;
+     dy = _y2 - _y1;
+     d_x1 = std::fabs(dx);
+     d_y1 = std::fabs(dy);
+     px = 2 * d_y1 - d_x1;
+     py = 2 * d_x1 - d_y1;
 
-     if (dy1 <= dx1)
+     if (d_y1 <= d_x1)
      {
-
          if (dx >= 0)
           {
-               x = x1;
-               y = y1;
-               xe = x2;
+               x = _x1;
+               y = _y1;
+               xe = _x2;
           }
           else
           {
-               x = x2;
-               y = y2;
-               xe = x1;
+               x = _x2;
+               y = _y2;
+               xe = _x1;
           }
           image.setPixel(x, y, _r, _g, _b);
 
@@ -184,7 +185,7 @@ void bhm_line(Image& image,
                ++x;
                if (px < 0)
                {
-                    px += 2 * dy1;
+                    px += 2 * d_y1;
                }
                else
                {
@@ -196,7 +197,7 @@ void bhm_line(Image& image,
                     {
                         --y;
                     }
-                    px += 2 * (dy1 - dx1);
+                    px += 2 * (d_y1 - d_x1);
                }
                image.setPixel(x, y, _r, _g, _b);
           }
@@ -205,15 +206,15 @@ void bhm_line(Image& image,
      {
           if(dy >= 0)
           {
-               x = x1;
-               y = y1;
-               ye = y2;
+               x = _x1;
+               y = _y1;
+               ye = _y2;
           }
           else
           {
-               x = x2;
-               y = y2;
-               ye = y1;
+               x = _x2;
+               y = _y2;
+               ye = _y1;
           }
           image.setPixel(x, y, _r, _g, _b);
 
@@ -222,13 +223,11 @@ void bhm_line(Image& image,
                ++y;
                if(py <= 0)
                {
-                    py += 2 * dx1;
+                    py += 2 * d_x1;
                }
                else
                {
                    //((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) ? x++ : x--;
-
-
                    if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
                     {
                         ++x;
@@ -237,7 +236,7 @@ void bhm_line(Image& image,
                     {
                         --x;
                     }
-                    py += 2 * (dx1 - dy1);
+                    py += 2 * (d_x1 - d_y1);
                }
                image.setPixel(x, y, _r, _g, _b);
           }
@@ -264,9 +263,15 @@ void rainbowWheel(const int _line_Number,
     for (int i = 0; i < _line_Number; ++i)
     {
         Point next = yielder.nextLine(_rad_angle);
-        bhm_line(image, center.x, center.y, next.x, next.y, 255, 0, 0);
+        bhm_line(image, center.x, center.y, next.x, next.y, 255, 255, 255);
+        std::stringstream ss;
+        ss << "picture-rainbowlines" << "-" << i << ".png";
+        image.save(ss.str().c_str());
     }
-    image.save("picture-redlines.png");
+    //string path = "$HOME/workspace/lecture4/ImageMagick/";
+    system("ffmpeg -i picture-rainbowlines-%d.png rainbowlines.gif");
+    system("rm picture-rainbowlines-*");
+
 }
 
 /* Investigate the use of fmod to create repeating patterns
