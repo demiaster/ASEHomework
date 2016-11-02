@@ -45,7 +45,7 @@ int main()
 
     //line(100, 100, 800, 800, 255, 0, 0);
 
-    rainbowWheel(100, WIDTH / 2, HEIGHT / 2, 1360, 540);
+    rainbowWheel(200, WIDTH / 2, HEIGHT / 2, 1360, 540);
 
     return EXIT_SUCCESS;
 }
@@ -255,7 +255,7 @@ void rainbowWheel(const int _line_Number,
     Point center = Point{_x_center, _y_center};
     Point end_point = Point{_x_end, _y_end};
 
-    float _deg_angle = 360 / _line_Number;
+    float _deg_angle = float(360) / _line_Number;
     float _rad_angle = _deg_angle * PI / 180;
 
     LineYielder yielder(center, end_point);
