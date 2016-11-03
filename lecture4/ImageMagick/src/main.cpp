@@ -271,6 +271,7 @@ void rainbowWheel(const int _line_Number,
     //string path = "$HOME/workspace/lecture4/ImageMagick/";
     system("ffmpeg -i picture-rainbowlines-%d.png rainbowlines.gif");
     system("rm picture-rainbowlines-*");
+    system("animate -resize 1920x1080 rainbowlines.gif");
 
 }
 
