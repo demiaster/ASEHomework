@@ -23,6 +23,10 @@ class Image
             m_pixelDepth(_depth),
             m_data(new unsigned char[_width * _height * _depth]) {;}
 
+        //make sure instances cannot be copied
+        Image(const Image &) = delete;
+        Image & operator = (const Image &) = delete;
+
         /// mutators
         /// @brief set the specified pixel to given r, g, b values
         /// @param[in] _x x index for pixel position
