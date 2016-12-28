@@ -10,6 +10,7 @@
 #include <ngl/Util.h>
 #include <iostream>
 #include <vector>
+#include <array>
 #include <math.h>
 
 NGLScene::NGLScene()
@@ -17,13 +18,11 @@ NGLScene::NGLScene()
     // re-size the widget to that of the parent (in this case the GLFrame passed in on construction)
     setTitle("VAO Grid");
     std::cout<<m_view<<'\n'<<m_projection<<'\n';
-    m_view=ngl::lookAt(ngl::Vec3(0.0f,0.0f,15.0f),
+    m_view=ngl::lookAt(ngl::Vec3(0.0f,0.0f,150.0f),
                        ngl::Vec3::zero(),
                        ngl::Vec3::up());
 
     std::cout<<"view \n"<<m_view<<'\n';
-
-
 }
 
 
@@ -31,7 +30,6 @@ NGLScene::~NGLScene()
 {
     std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
 }
-
 
 
 void NGLScene::resizeGL(int _w , int _h)
@@ -52,51 +50,74 @@ struct vertex
     ngl::Vec3 n;
 };
 
-void NGLScene::buildMesh(ngl::Real _w, ngl::Real _d)
+typedef struct Point_s
+{
+    float x;
+    float y;
+} Point;
+
+void NGLScene::buildMesh(ngl::Real _width, ngl::Real _height)
 {
     std::vector<vertex> data;
     vertex vert;
-    double angle = 60.0;
-    double cosine = cos(angle * ngl::PI / 180);
-    double sine = sin(angle * ngl::PI / 180);
-
-    //centre
-    vert.p.m_x = 0.0f;
-    vert.p.m_y = 0.0f;
-    data.push_back(vert);
-
+    vertex origin;
+    vertex current_center;
+    float angle = 60.0;
+    float cosine = cos(angle * ngl::PI / 180);
+    float sine = sin(angle * ngl::PI / 180);
+    float radius = 1.0f;
     //anticlockwise
-    vert.p.m_x = 1.0f;
-    vert.p.m_y = 0.0f;
-    data.push_back(vert);
+    std::array<Point, 7> vertices =
+                            {Point{  radius, 0},
+                             Point{  radius * cosine, radius * sine},
+                             Point{- radius * cosine, radius * sine},
+                             Point{- radius, 0},
+                             Point{- radius * cosine, - radius * sine},
+                             Point{  radius * cosine, - radius * sine},
+                             Point{  radius, 0}};
 
-    vert.p.m_x = cosine;
-    vert.p.m_y = sine;
-    data.push_back(vert);
+    //center of the first top left hexagon
+    origin.p.m_x = 0.0f;
+    origin.p.m_y = 0.0f;
 
-    vert.p.m_x = - cosine;
-    vert.p.m_y = sine;
-    data.push_back(vert);
+    float deltax = 3 * radius * cosine;
+    float deltay_odd = - radius * sine;
+    //looping on the y
+    for(int k = 0; k < _height; ++k)
+    {
+        float line_offset = - k * 2 * radius * sine;
+        //looping on the x
+        for(int j = 0; j < _width; ++j)
+        {
+            current_center.p.m_x = origin.p.m_x + j * deltax;
+            current_center.p.m_y = origin.p.m_y + line_offset + ((j % 2) * deltay_odd);
 
-    vert.p.m_x = - 1.0f;
-    vert.p.m_y = 0.0f;
-    data.push_back(vert);
 
-    vert.p.m_x = - cosine;
-    vert.p.m_y = - sine;
-    data.push_back(vert);
+            //do the hexagon
+            for(int i = 0; i < vertices.size() - 1; ++i)
+            {
+                data.push_back(current_center);
 
-    vert.p.m_x = cosine;
-    vert.p.m_y = - sine;
-    data.push_back(vert);
+                // i-th vertex only needs to be defined the first time,
+                // every other time it had already been defined at i-1-th
+                if(i == 0)
+                {
+                    vert.p.m_x = current_center.p.m_x + vertices[i].x;
+                    vert.p.m_y = current_center.p.m_y + vertices[i].y;
+                }
+                data.push_back(vert);
 
-    vert.p.m_x = 1.0f;
-    vert.p.m_y = 0.0f;
-    data.push_back(vert);
+                vert.p.m_x = current_center.p.m_x + vertices[i + 1].x;
+                vert.p.m_y = current_center.p.m_y + vertices[i + 1].y;
+                data.push_back(vert);
+
+            }
+        }
+    }
 
     m_nVerts=data.size();
 
-    m_vao.reset(ngl::VAOFactory::createVAO(ngl::simpleVAO,GL_TRIANGLE_FAN));
+    m_vao.reset(ngl::VAOFactory::createVAO(ngl::simpleVAO,GL_TRIANGLES));
     m_vao->bind();
     m_vao->setData(ngl::AbstractVAO::VertexData(data.size()*sizeof(vertex),
                                                 data[0].p.m_x));
@@ -105,8 +126,6 @@ void NGLScene::buildMesh(ngl::Real _w, ngl::Real _d)
 
     m_vao->setNumIndices(data.size());
     m_vao->unbind();
-
-
 
 }
 
