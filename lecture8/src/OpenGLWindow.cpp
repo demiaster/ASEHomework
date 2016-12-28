@@ -132,7 +132,7 @@ void OpenGLWindow::paintGL()
 //              glRotated(rot*k*2,0,0,1);
 
                 glPushMatrix();
-                glTranslatef(i,i+sinf(rot)*20,k);
+                glTranslatef(i,i,k);
                     drawCube(0.1,0.1,0.1);
                 glPopMatrix();
               glPopMatrix();
