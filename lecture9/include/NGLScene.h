@@ -92,7 +92,7 @@ private:
    /// @param _w the width in screen space
    /// @param _d the depth in screen space
    ///
-   void buildMesh(ngl::Real _w, ngl::Real _d);
+   void buildMesh(ngl::Real _width, ngl::Real _height);
    void timerEvent(QTimerEvent *);
 };
 
