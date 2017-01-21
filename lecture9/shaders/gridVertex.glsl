@@ -4,6 +4,7 @@
 
 layout (location = 0) in vec3 inVert;
 layout (location = 1) in vec3 normal;
+layout (location = 2) in vec4 color;
 
 //our model / view / project transform
 uniform mat4 MVP;
@@ -11,7 +12,7 @@ uniform mat4 MV;
 uniform mat3 normalMatrix;
 out vec3 lightIntensity;
 uniform vec3 lightPos = vec3(5, 12, 12);
-uniform vec4 color;
+//uniform vec4 color;
 
 void main()
 {

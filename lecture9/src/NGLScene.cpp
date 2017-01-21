@@ -48,6 +48,7 @@ struct vertex
 {
     ngl::Vec3 p;
     ngl::Vec3 n;
+    ngl::Vec4 c;
 };
 
 typedef struct Point_s
@@ -115,14 +116,14 @@ void NGLScene::buildMesh(ngl::Real _width, ngl::Real _height)
         }
     }
 
-    m_nVerts=data.size();
-
-    m_vao.reset(ngl::VAOFactory::createVAO(ngl::simpleVAO,GL_TRIANGLES));
+    m_nVerts=data.size();  
+    m_vao.reset(ngl::VAOFactory::createVAO(ngl::simpleVAO, GL_TRIANGLES));
     m_vao->bind();
     m_vao->setData(ngl::AbstractVAO::VertexData(data.size()*sizeof(vertex),
                                                 data[0].p.m_x));
     m_vao->setVertexAttributePointer(0,3,GL_FLOAT,sizeof(vertex),0);
     m_vao->setVertexAttributePointer(1,3,GL_FLOAT,sizeof(vertex),3);
+    m_vao->setVertexAttributePointer(2,4,GL_FLOAT,sizeof(vertex),6);
 
     m_vao->setNumIndices(data.size());
     m_vao->unbind();
